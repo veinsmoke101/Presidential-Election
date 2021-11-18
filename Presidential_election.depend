@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1637270394 source:c:\users\veinsmoke\documents\my_c\presidential_election\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<conio.h>
+
