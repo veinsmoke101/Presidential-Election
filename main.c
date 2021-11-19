@@ -21,6 +21,10 @@ void printPresident(president* );
 int vote(president** ,int );
 int premierTour(president ** );
 void resetVotes(president **);
+int deuxiemeTour(president ** );
+int dernierTour(president ** );
+
+
 
 
 
@@ -50,7 +54,7 @@ int main()
     addPresident(&head,(char *)data);
 
     }while(1);
-        system("cls");
+    //system("cls");
 
     // Read voters
     printf("Enter CIN of Voters :\n");
@@ -59,7 +63,7 @@ int main()
     data = NULL;
     getline(&data,&len,stdin);
     if(!strcmp(data,"0\n")){
-        if(voters_number < 6){
+        if(voters_number < 10){
             printf("Not Enough candidates !!\n");
             continue;
         }
@@ -99,14 +103,66 @@ int main()
         }while(i < voters_number);
 
         tour_result = premierTour(&head);
+        if(tour_result == 1)
+            break;
+
+    }
+    system("cls");
+    printPresident(head);
+
+        while(1){
+        i = 0;
+        printf("\n -----------------Deuxieme tour----------------- \n");
+        resetVotes(&head);
+        do{
+            do{
+                printf("\nVoter of CIN : %sPlease vote now : ",voters[i]);
+                scanf("%d",&vote_data);
+                if(vote(&head,vote_data) == 1){
+                    printf("Thank You\n");
+                    break;
+                }else{
+                    printf(" .. Try again plz\n");
+                }
+            }while(1);
+
+            i++;
+        }while(i < voters_number);
+
+        tour_result = deuxiemeTour(&head);
         printf("%d",tour_result);
         if(tour_result == 1)
             break;
 
     }
-
+    system("cls");
     printPresident(head);
 
+
+    while(1){
+        i = 0;
+        printf("\n -----------------Dernier tour----------------- \n");
+        resetVotes(&head);
+        do{
+            do{
+                printf("\nVoter of CIN : %sPlease vote now : ",voters[i]);
+                scanf("%d",&vote_data);
+                if(vote(&head,vote_data) == 1){
+                    printf("Thank You\n");
+                    break;
+                }else{
+                    printf(" .. Try again plz\n");
+                }
+            }while(1);
+
+            i++;
+        }while(i < voters_number);
+
+        tour_result = dernierTour(&head);
+        if(tour_result == 1)
+            break;
+
+    }
 
     return 0;
 }
@@ -216,16 +272,16 @@ void resetVotes(president** head){
 int premierTour(president ** head){
     president * temp = *head, *deleted = NULL;
     float result, count =0;
-    while(temp != NULL){
-        result = (temp->votes*100)/voters_number;
-        if(result < 15){
+    while(temp != NULL && temp->next != NULL){
+        if(temp->votes != temp->next->votes){
             count++;
+            break;
         }
-        temp = temp->next;
+        temp=temp->next;
     }
-    if(count > 1){
+    if(count == 0)
         return 0;
-    }
+
     temp = *head;
     while(temp != NULL){
         result = (temp->votes*100)/voters_number;
@@ -233,7 +289,6 @@ int premierTour(president ** head){
             deleted = temp;
             printf("Eliminated president : %s",deleted->name);
             deletePresident(head,deleted);
-            return 1;
         }
         temp = temp->next;
     }
@@ -242,6 +297,70 @@ int premierTour(president ** head){
 
 
 
-void deuxiemeTour(president ** head){
+int deuxiemeTour(president ** head){
+    president * temp = *head, *deleted = NULL;
+    float count =0;
+    int min;
+    while(temp != NULL && temp->next != NULL){
+        if(temp->votes != temp->next->votes){
+            count++;
+            break;
+        }
+        temp=temp->next;
+    }
+    if(count == 0)
+        return 0;
 
+    temp = *head;
+    deleted = temp;
+    min = temp->votes;
+    while(temp != NULL && temp->next != NULL){
+        if(temp->next->votes < min)
+            min = temp->next->votes;
+        temp = temp->next;
+    }
+    temp = *head;
+    while(temp != NULL ){
+    if(temp->votes == min){
+        printf("%d , ",temp->votes);
+        deleted = temp;
+        deletePresident(head,deleted);
+    }
+    temp = temp->next;
+    }
+    return 1;
+}
+
+
+int dernierTour(president ** head){
+    president * temp = *head;
+    int  max;
+
+    max = temp->votes;
+
+    while(temp != NULL && temp->next != NULL){
+        if(temp->next->votes > max){
+            max = temp->next->votes;
+        }
+        temp = temp->next;
+    }
+
+    temp = *head;
+    while(temp != NULL && temp->next != NULL){
+        if(temp->next->votes == temp->votes && temp->votes == max){
+            return 0;
+        }
+        temp = temp->next;
+    }
+
+    temp = *head;
+    while(temp != NULL ){
+        if(temp->votes == max){
+            system("cls");
+            printf("\nLadies and Gentlemans .. Our Beloved President is :\n%s",temp->name);
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 1;
 }
